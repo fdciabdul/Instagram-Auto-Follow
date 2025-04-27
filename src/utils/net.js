@@ -9,7 +9,7 @@ const streamPipeline = promisify(pipeline);
 
  class Downloader {
     constructor(path) {
-        this.path = path;  // e.g., './bin.zip'
+        this.path = path; 
         this.url = "https://github.com/imtaqin/YOMEN/releases/download/v1/bin.zip";
     }
 
