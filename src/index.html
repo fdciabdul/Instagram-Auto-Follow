@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html,
+        body {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('background/bg1.jpg') no-repeat center center fixed;
+            background-size: cover;
+            border-radius: 12px;
+            z-index: -1;
+            backdrop-filter: blur(5px);
+        }
+
+        / body {
+            background: transparent !important;
+        }
+
+        footer {
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .window {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .title-bar {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .status-bar {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .draggable {
+            -webkit-app-region: drag;
+        }
+
+        .no-drag {
+            -webkit-app-region: no-drag;
+        }
+
+        #popup-alert {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="text-white h-screen overflow-hidden ">
+
+    <div class="flex justify-between items-center bg-black/30 backdrop-blur-md p-1 draggable">
+        <div class="ml-2 text-sm font-semibold"> INSTAGRAM BOT</div>
+        <div class="window-controls flex gap-2 no-drag">
+            <button class="text-yellow-400 hover:text-yellow-300 px-2"
+                onclick="window.botAPI.minimizeWindow()">🟡</button>
+            <button class="text-red-500 hover:text-red-400 px-2" onclick="window.botAPI.closeWindow()">🔴</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="flex h-[calc(100vh-40px)] p-2 gap-2">
+        <!-- Left Panel -->
+        <div class="w-1/3 bg-black/40 backdrop-blur-lg rounded-lg p-3 flex flex-col gap-3 text-sm">
+
+            <!-- Tabs -->
+            <div class="flex justify-around border-b border-white/20 pb-1 text-xs">
+                <div id="manual-tab"
+                    class="cursor-pointer text-center w-1/3 border-b-2 border-transparent hover:border-white active:border-white">
+                    Manual</div>
+                <div id="csv-tab"
+                    class="cursor-pointer text-center w-1/3 border-b-2 border-transparent hover:border-white">CSV</div>
+                <div id="proxy-tab"
+                    class="cursor-pointer text-center w-1/3 border-b-2 border-transparent hover:border-white">Proxy
+                </div>
+            </div>
+
+            <!-- Manual Start Form -->
+            <div id="manual-content" class="flex flex-col gap-2 mt-2">
+                <form id="bot-form" class="flex flex-col gap-2">
+                    <label>Username:</label>
+                    <input type="text" id="username" placeholder="Enter Username"
+                        class="bg-white/10 text-white p-1 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+
+                    <label>Password:</label>
+                    <input type="password" id="password" placeholder="Enter Password"
+                        class="bg-white/10 text-white p-1 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+
+                    <label>Media URL:</label>
+                    <input type="text" id="media-url" placeholder="Enter Media URL"
+                        class="bg-white/10 text-white p-1 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+
+                    <button type="submit"
+                        class="mt-2 bg-blue-500 hover:bg-blue-600 p-1 rounded-md text-white font-medium">Start
+                        Bot</button>
+                </form>
+            </div>
+
+            <!-- CSV Upload -->
+            <div id="csv-content" class="hidden flex flex-col gap-2 mt-2">
+                <label>Upload CSV File:</label>
+                <div class="flex items-center gap-2">
+                    <label for="csv-upload"
+                        class="bg-white/10 hover:bg-white/20 cursor-pointer p-1 rounded-md text-center w-full text-xs text-white">Choose
+                        CSV File</label>
+                    <input type="file" id="csv-upload" accept=".csv" class="hidden">
+                </div>
+                <button id="start-csv-bot"
+                    class="mt-2 bg-green-500 hover:bg-green-600 p-1 rounded-md text-white font-medium">Start CSV
+                    Bot</button>
+            </div>
+
+            <!-- Proxy Setup -->
+            <div id="proxy-content" class="hidden flex flex-col gap-2 mt-2">
+                <label>Proxy Address:</label>
+                <input type="text" id="proxy-address" placeholder="http://proxy:port"
+                    class="bg-white/10 text-white p-1 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+
+                <label>Proxy Username:</label>
+                <input type="text" id="proxy-username" placeholder="Proxy Username"
+                    class="bg-white/10 text-white p-1 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+
+                <label>Proxy Password:</label>
+                <input type="password" id="proxy-password" placeholder="Proxy Password"
+                    class="bg-white/10 text-white p-1 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <label>Proxy Port:</label>
+                <input type="number" id="proxy-port" placeholder="Proxy Port"
+                    class="bg-white/10 text-white p-1 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <button id="proxy-save"
+                    class="mt-2 bg-yellow-500 hover:bg-yellow-600 p-1 rounded-md text-white font-medium">Save
+                    Proxy</button>
+            </div>
+        </div>
+
+        <!-- Right Panel (Logs) -->
+        <div class="w-2/3 bg-black/50 backdrop-blur-lg rounded-lg p-3 flex flex-col gap-3 text-sm">
+            <h2 class="text-lg font-semibold">Logs</h2>
+            <div id="log-container"
+                class="h-full overflow-y-scroll bg-white/10 p-2 rounded-md font-mono text-xs text-gray-200"></div>
+        </div>
+    </div>
+    <div id="popup-alert" class="fixed inset-0 bg-black/60 flex justify-center items-center hidden">
+        <div class="bg-white text-gray-900 rounded-lg shadow-lg p-6 w-80 text-center">
+            <h2 class="text-xl font-bold mb-2">⚠️ Verifikasi Diperlukan</h2>
+            <p class="text-sm mb-4">
+                Akun Anda <strong id="popup-username"></strong> memerlukan penyelesaian challenge
+                <strong>2FA (Two-Factor Authentication)</strong>.
+
+                <br>
+                <br>
+
+                <strong>Langkah 1:</strong> Buka browser dengan akun yang terkena 2FA.
+                <br>
+                <strong>Langkah 2:</strong>Selesaikan sampai masuk ke profile.
+            </p>
+            <button id="popup-close" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md font-medium">
+                Tutup
+            </button>
+        </div>
+    </div>
+    <footer class="text-center text-xs text-gray-400 mt-1">
+        &copy; 2024 Instagram Bot. All rights reserved.
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const images = [
+                'background/bg1.jpg',
+                'background/bg2.jpg',
+                'background/bg3.jpg',
+            ];
+            let currentIndex = 0;
+
+            setInterval(() => {
+                currentIndex = (currentIndex + 1) % images.length;
+                document.body.style.setProperty('--bg-image', `url('${images[currentIndex]}')`);
+            }, 10000);
+        });
+        // Tab Switching Logic
+        const manualTab = document.getElementById('manual-tab');
+        const csvTab = document.getElementById('csv-tab');
+        const proxyTab = document.getElementById('proxy-tab');
+
+        const manualContent = document.getElementById('manual-content');
+        const csvContent = document.getElementById('csv-content');
+        const proxyContent = document.getElementById('proxy-content');
+
+        function showTab(activeTab, contentToShow) {
+            [manualTab, csvTab, proxyTab].forEach(tab => tab.classList.remove('border-white'));
+            [manualContent, csvContent, proxyContent].forEach(content => content.classList.add('hidden'));
+
+            activeTab.classList.add('border-white');
+            contentToShow.classList.remove('hidden');
+        }
+
+        manualTab.addEventListener('click', () => showTab(manualTab, manualContent));
+        csvTab.addEventListener('click', () => showTab(csvTab, csvContent));
+        proxyTab.addEventListener('click', () => showTab(proxyTab, proxyContent));
+    </script>
+    <script src="renderer.js"></script>
+</body>
+
+</html>
